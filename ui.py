@@ -24,7 +24,6 @@ def build_ui(root):
     entries = {}
 
     def validate_input(P):
-        """Validate if the entered text is a valid float number or empty string."""
         if P == "" or P.replace('.', '', 1).isdigit():
             return True
         else:
@@ -43,7 +42,7 @@ def build_ui(root):
         model = selected_model.get()
         if model:
             for param in MODEL_PARAMS[selected_env.get()][model]:
-                label = tk.Label(input_frame, text=param)
+                label = tk.Label(input_frame, text=param, bg="#f8f9fa", fg="#212529")
                 vcmd = root.register(validate_input)
                 entry = tk.Entry(input_frame, validate="key", validatecommand=(vcmd, "%P"))
                 label.pack()
@@ -116,16 +115,16 @@ def build_ui(root):
     # About Menu
     menu_bar.add_command(label="About", command=lambda: about_window.show_about(root))
 
-    root.config(menu=menu_bar)
+    root.config(menu=menu_bar, bg="#f8f9fa")
 
     # --- SCROLLABLE WRAPPER SETUP ---
-    canvas = tk.Canvas(root, borderwidth=0, height=720)
+    canvas = tk.Canvas(root, borderwidth=0, height=720, bg="#f8f9fa")
     scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
 
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    scroll_frame = tk.Frame(canvas)
+    scroll_frame = tk.Frame(canvas, bg="#f8f9fa")
     scroll_window = canvas.create_window((0, 0), window=scroll_frame, anchor="n")
 
     def on_configure(event):
@@ -137,36 +136,31 @@ def build_ui(root):
     canvas.bind("<Configure>", on_configure)
     canvas.configure(yscrollcommand=scrollbar.set)
 
-    center_frame = tk.Frame(scroll_frame, width=800)
+    center_frame = tk.Frame(scroll_frame, width=800, bg="#f8f9fa")
     center_frame.pack(pady=20)
 
-    # UI Setup
-    tk.Label(center_frame, text="Select Environment:").pack(anchor="w", padx=10, pady=(10, 0))
+    tk.Label(center_frame, text="Select Environment:", bg="#f8f9fa", fg="#212529").pack(anchor="w", padx=10, pady=(10, 0))
     ttk.OptionMenu(center_frame, selected_env, selected_env.get(), *MODEL_PARAMS.keys(), command=update_model_options).pack(padx=10, fill="x")
 
-    tk.Button(root, text="Help (Open PDF)", bg="#5bc0de", fg="white", font=("Arial", 10, "bold"),
-          command=lambda: utils.open_pdf("report.pdf")).pack(pady=5, padx=10, fill="x", expand=True)
-
-
-    tk.Label(center_frame, text="Select Propagation Model:").pack(anchor="w", padx=10, pady=(10, 0))
+    tk.Label(center_frame, text="Select Propagation Model:", bg="#f8f9fa", fg="#212529").pack(anchor="w", padx=10, pady=(10, 0))
     model_menu = ttk.OptionMenu(center_frame, selected_model, "")
     model_menu.pack(padx=10, fill="x")
 
-    input_frame = tk.Frame(center_frame)
+    input_frame = tk.Frame(center_frame, bg="#f8f9fa")
     input_frame.pack(pady=10, fill="x", padx=10)
-    
-    tk.Button(center_frame, text="Calculate", bg="blue", fg="white", font=("Arial", 12, "bold"), 
-              command=calculate).pack(pady=(10, 5), padx=10, fill="x", expand=True)
+
+    tk.Button(center_frame, text="Calculate", bg="#007bff", fg="white", font=("Arial", 12, "bold"), command=calculate).pack(pady=10, fill="x", padx=10)
 
     global save_btn
-    save_btn = tk.Button(center_frame, text="Save Graph", state="disabled", bg="green", fg="white", 
-                         font=("Arial", 12, "bold"))
-    save_btn.pack(pady=(0, 10), padx=10, fill="x", expand=True)
+    save_btn = tk.Button(center_frame, text="Save Graph", state="disabled", bg="#28a745", fg="white", font=("Arial", 12, "bold"))
+    save_btn.pack(pady=10, fill="x", padx=10)
+
+    tk.Button(center_frame, text="Help (Open PDF)", bg="#5bc0de", fg="white", font=("Arial", 10, "bold"),
+              command=lambda: utils.open_pdf("report.pdf")).pack(pady=10, fill="x", padx=10)
 
     global plot_frame
-    plot_frame = tk.Frame(center_frame, width=800, height=500)
+    plot_frame = tk.Frame(center_frame, width=800, height=500, bg="#f8f9fa")
     plot_frame.pack(fill="both", expand=True, padx=50, pady=10)
     plot_frame.pack_propagate(False)
-
 
     update_model_options()
