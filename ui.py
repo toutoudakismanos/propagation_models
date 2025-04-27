@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import models
 import about_window
 import utils
-from graph_utils import plot_result  # Ensure you are using the correct function for plotting
+from graph_utils import plot_result
 
 MODEL_PARAMS = {
     "Outdoor": {
@@ -22,34 +22,6 @@ def build_ui(root):
     selected_env = tk.StringVar(value="Outdoor")
     selected_model = tk.StringVar()
     entries = {}
-
-    dark_mode = tk.BooleanVar(value=False)  # <-- Add this line
-
-    def apply_theme():
-        bg = "#1e1e1e" if dark_mode.get() else "SystemButtonFace"
-        fg = "white" if dark_mode.get() else "black"
-        entry_bg = "#2e2e2e" if dark_mode.get() else "white"
-
-        # Apply theme to the main layout parts
-        canvas.config(bg=bg)
-        scroll_frame.config(bg=bg)
-        center_frame.config(bg=bg)
-        input_frame.config(bg=bg)
-        plot_frame.config(bg=bg)
-        root.config(bg=bg)
-
-        for widget in center_frame.winfo_children() + input_frame.winfo_children() + plot_frame.winfo_children():
-            try:
-                widget.config(bg=bg, fg=fg)
-            except:
-                pass
-            if isinstance(widget, tk.Entry):
-                widget.config(bg=entry_bg, fg=fg, insertbackground=fg)
-
-    def toggle_dark_mode():
-        dark_mode.set(not dark_mode.get())
-        apply_theme()
-
 
     def validate_input(P):
         """Validate if the entered text is a valid float number or empty string."""
@@ -127,19 +99,12 @@ def build_ui(root):
         selected_model.set("")
         update_fields()
 
-    def toggle_plot():
-        if plot_frame.winfo_viewable():
-            plot_frame.pack_forget()
-        else:
-            plot_frame.pack(fill="both", expand=True, padx=50, pady=10)
-
     # ----- MENU BAR -----
     menu_bar = tk.Menu(root)
 
     # File Menu
     file_menu = tk.Menu(menu_bar, tearoff=0)
     file_menu.add_command(label="Open PDF Report", command=lambda: utils.open_pdf("report.pdf"))
-    file_menu.add_command(label="Exit", command=root.quit)
     menu_bar.add_cascade(label="File", menu=file_menu)
 
     # Edit Menu
@@ -147,12 +112,6 @@ def build_ui(root):
     edit_menu.add_command(label="Clear Inputs", command=clear_inputs)
     edit_menu.add_command(label="Reset Selections", command=reset_selection)
     menu_bar.add_cascade(label="Edit", menu=edit_menu)
-
-    # View Menu
-    view_menu = tk.Menu(menu_bar, tearoff=0)
-    view_menu.add_command(label="Show/Hide Plot", command=toggle_plot)
-    view_menu.add_checkbutton(label="Toggle Dark Mode", onvalue=True, offvalue=False, variable=dark_mode, command=toggle_dark_mode)
-    menu_bar.add_cascade(label="View", menu=view_menu)
 
     # About Menu
     menu_bar.add_command(label="About", command=lambda: about_window.show_about(root))
@@ -185,8 +144,9 @@ def build_ui(root):
     tk.Label(center_frame, text="Select Environment:").pack(anchor="w", padx=10, pady=(10, 0))
     ttk.OptionMenu(center_frame, selected_env, selected_env.get(), *MODEL_PARAMS.keys(), command=update_model_options).pack(padx=10, fill="x")
 
-    tk.Button(root, text="Help (Open PDF)", bg="gray", fg="white", font=("Arial", 10, "bold"),
-              command=lambda: utils.open_pdf("report.pdf")).pack(pady=5)
+    tk.Button(root, text="Help (Open PDF)", bg="#5bc0de", fg="white", font=("Arial", 10, "bold"),
+          command=lambda: utils.open_pdf("report.pdf")).pack(pady=5, padx=10, fill="x", expand=True)
+
 
     tk.Label(center_frame, text="Select Propagation Model:").pack(anchor="w", padx=10, pady=(10, 0))
     model_menu = ttk.OptionMenu(center_frame, selected_model, "")
@@ -194,16 +154,19 @@ def build_ui(root):
 
     input_frame = tk.Frame(center_frame)
     input_frame.pack(pady=10, fill="x", padx=10)
+    
+    tk.Button(center_frame, text="Calculate", bg="blue", fg="white", font=("Arial", 12, "bold"), 
+              command=calculate).pack(pady=(10, 5), padx=10, fill="x", expand=True)
 
-    tk.Button(center_frame, text="Calculate", bg="blue", fg="white", font=("Arial", 12, "bold"), command=calculate).pack(pady=10)
+    global save_btn
+    save_btn = tk.Button(center_frame, text="Save Graph", state="disabled", bg="green", fg="white", 
+                         font=("Arial", 12, "bold"))
+    save_btn.pack(pady=(0, 10), padx=10, fill="x", expand=True)
 
     global plot_frame
     plot_frame = tk.Frame(center_frame, width=800, height=500)
     plot_frame.pack(fill="both", expand=True, padx=50, pady=10)
     plot_frame.pack_propagate(False)
 
-    global save_btn
-    save_btn = tk.Button(center_frame, text="Save Graph", state="disabled", bg="green", fg="white")
-    save_btn.pack(pady=10)
 
     update_model_options()
